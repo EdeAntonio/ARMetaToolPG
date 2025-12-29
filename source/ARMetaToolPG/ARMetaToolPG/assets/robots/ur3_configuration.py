@@ -3,16 +3,18 @@
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
-from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
 
 UR3_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{ISAAC_NUCLEUS_DIR}/Robots/UniversalRobots/ur3e/ur3e.usd",
+        usd_path=f"{ARMT_ASSETS_DATA_DIR}/ur3e/ur3e_gripper.usd",
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
             max_depenetration_velocity=5.0,
         ),
-        activate_contact_sensors=False,
+        articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+            enabled_self_collisions=True,
+        )
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         joint_pos={

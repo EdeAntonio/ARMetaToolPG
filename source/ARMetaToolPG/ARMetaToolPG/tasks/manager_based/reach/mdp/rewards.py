@@ -8,9 +8,10 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
-from isaaclab.assets import RigidObject
+from isaaclab.assets import RigidObject, Articulation
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils.math import combine_frame_transforms, quat_error_magnitude, quat_mul
+from isaaclab.sensors import ContactSensor
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -67,3 +68,19 @@ def orientation_command_error(env: ManagerBasedRLEnv, command_name: str, asset_c
     des_quat_w = quat_mul(asset.data.root_quat_w, des_quat_b)
     curr_quat_w = asset.data.body_quat_w[:, asset_cfg.body_ids[0]]  # type: ignore
     return quat_error_magnitude(curr_quat_w, des_quat_w)
+
+def touch_desk(env: ManagerBasedRLEnv,  
+    robot_desk_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("robot_desk_contact_sensor"),
+    #robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+    ):
+    tool_contact_sensor: ContactSensor = env.scene[robot_desk_contact_sensor_cfg.name]
+    #   Check active contact (current_contact_time > 0)
+    contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0.01).bool()
+    #robot_desk_contact_sensor: ContactSensor = env.scene[robot_desk_contact_sensor_cfg.name]
+    #forces = robot_desk_contact_sensor.data.net_forces_w
+    #forces_raw= torch.norm(forces, -1)
+    #robot: Articulation = env.scene[robot_cfg.name]
+    #exclude = robot.body_names.index["base*."]
+    #forces_raw[:, exclude]= 0.0
+    #contact_active = torch.sum(forces_raw, 1) > 0
+    return torch.where(contact_active, 1, 0)

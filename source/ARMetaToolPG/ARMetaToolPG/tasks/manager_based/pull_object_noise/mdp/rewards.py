@@ -253,9 +253,10 @@ def object_goal_distance(
 #     ori_distance = torch.norm(des_ori_w - object.data.root_state_w[:, 3:7], dim=1)
 #     # reward based on position and orientation distance
 #     return (1 - torch.tanh(pos_distance / std)) * (1 - torch.tanh(ori_distance / std))
+
 def touch_desk(env: ManagerBasedRLEnv,  
     robot_desk_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("robot_desk_sensor")):
-    tool_contact_sensor: ContactSensor = env.scene[robot_desk_contact_sensor_cfg.name]
+    robot_desk_contact_sensor: ContactSensor = env.scene[robot_desk_contact_sensor_cfg.name]
     #   Check active contact (current_contact_time > 0)
-    contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0.01).bool()
+    contact_active = (torch.norm(robot_desk_contact_sensor.data.net_forces_w, -1) > 0.01).bool()
     return torch.where(contact_active, 1, 0)

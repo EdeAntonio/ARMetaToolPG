@@ -24,9 +24,10 @@ from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+from isaaclab.sensors import ContactSensorCfg
 
-import ReachTaskUR3.tasks.manager_based.reach.mdp as mdp
-
+import ARMetaToolPG.tasks.manager_based.reach.mdp as mdp
+from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
 
 
 ##
@@ -47,11 +48,13 @@ class ReachSceneCfg(InteractiveSceneCfg):
 
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(-0.09, 0.56, -0.825), rot=(0.70711, 0.0, 0.0, -0.70711)),
         spawn=sim_utils.UsdFileCfg(
-            usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd",
+            usd_path=f"{ARMT_ASSETS_DATA_DIR}/Table/MT_table.usd",
+        activate_contact_sensors = True
         ),
-        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.55, 0.0, 0.0), rot=(0.70711, 0.0, 0.0, 0.70711)),
     )
+
 
     # robots
     robot: ArticulationCfg = MISSING
@@ -61,6 +64,8 @@ class ReachSceneCfg(InteractiveSceneCfg):
         prim_path="/World/light",
         spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=2500.0),
     )
+
+    robot_desk_contact_sensor: ContactSensorCfg = MISSING
 
 
 ##
@@ -161,6 +166,8 @@ class RewardsCfg:
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
 
+    # tocar (modificacion)
+    touch_penalty = RewTerm(func=mdp.touch_desk, weight = -0.05)
 
 @configclass
 class TerminationsCfg:
@@ -181,6 +188,9 @@ class CurriculumCfg:
         func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -0.001, "num_steps": 4500}
     )
 
+    touch_penalty = CurrTerm(
+        func=mdp.modify_reward_weight, params={"term_name" : "touch_penalty", "weight" : -0.3, "num_steps" : 4500}
+    )
 
 ##
 # Environment configuration

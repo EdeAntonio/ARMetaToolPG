@@ -5,12 +5,13 @@
 
 import math
 from isaaclab.utils import configclass
+from isaaclab.sensors import ContactSensorCfg
 
-import ReachTaskUR3.tasks.manager_based.reach.mdp as mdp
-from ReachTaskUR3.tasks.manager_based.reach.reach_env_cfg import ReachEnvCfg
+import ARMetaToolPG.tasks.manager_based.reach.mdp as mdp
+from ARMetaToolPG.tasks.manager_based.reach.reach_env_cfg import ReachEnvCfg
 
 # Configuración del robot
-from ReachTaskUR3.assets.robots.ur3_configuration import UR3_CFG
+from ARMetaToolPG.assets.robots.ur3_configuration import UR3_CFG
 
 # Configuración del entorno
 @configclass
@@ -28,9 +29,9 @@ class UR3ReachEnvCfg(ReachEnvCfg):
         self.events.reset_robot_joints.params["position_range"] = (0.75, 1.25)
 
         # Ajustar el nombre para la referencia de las recompensas. 
-        self.rewards.end_effector_position_tracking.params["asset_cfg"].body_names = ["wrist_3_link"]
-        self.rewards.end_effector_position_tracking_fine_grained.params["asset_cfg"].body_names = ["wrist_3_link"]
-        self.rewards.end_effector_orientation_tracking.params["asset_cfg"].body_names = ["wrist_3_link"]
+        self.rewards.end_effector_position_tracking.params["asset_cfg"].body_names = ["gripper_center"]
+        self.rewards.end_effector_position_tracking_fine_grained.params["asset_cfg"].body_names = ["gripper_center"]
+        self.rewards.end_effector_orientation_tracking.params["asset_cfg"].body_names = ["gripper_center"]
         
         # Ajustar el nombre para la referencia de las acciones
         self.actions.arm_action = mdp.JointPositionActionCfg(
@@ -38,11 +39,27 @@ class UR3ReachEnvCfg(ReachEnvCfg):
         )
 
         # Ajustar el nombre para la referencia de las comandas
-        self.commands.ee_pose.body_name = "wrist_3_link"
-        self.commands.ee_pose.ranges.pitch = (math.pi / 2, math.pi / 2)
-        self.commands.ee_pose.ranges.pos_x = (0.10, 0.40)
-        self.commands.ee_pose.ranges.pos_z = (0.10, 0.30)
-        #self.commands.ee_pose.ranges.pos_y = (0.0, 0.0)
+        self.commands.ee_pose.body_name = "gripper_center"
+        # self.commands.ee_pose.ranges.pitch = (math.pi/2, math.pi/2)
+        self.commands.ee_pose.ranges.pos_x = (0.15, 0.40)
+        self.commands.ee_pose.ranges.pos_z = (0.15, 0.30)
+        self.commands.ee_pose.ranges.pos_y = (-0.30, 0.20)
+
+        # Modificaciones
+        self.commands.ee_pose.ranges.pitch = (math.pi/4, math.pi* 3/4)
+        self.commands.ee_pose.ranges.yaw = (-math.pi/2, math.pi/2)
+
+        # Contacto con mesa
+        self.scene.table.spawn.activate_contact_sensors = True
+        self.scene.robot_desk_contact_sensor = ContactSensorCfg(
+            prim_path="{ENV_REGEX_NS}/Table",
+            filter_prim_paths_expr = ["{ENV_REGEX_NS}/Robot/*."],
+            track_air_time=True,
+            track_pose=True,
+            update_period=0.0,
+            debug_vis=False,
+            force_threshold = 1.0
+        )
 
 @configclass
 class UR3ReachEnvCfg_PLAY(UR3ReachEnvCfg):
