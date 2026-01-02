@@ -79,7 +79,7 @@ class RobohabilisPullObjectPolicy(PolicyController):
         # finger positions are absolute positions, not relative to the default position
         self.action[0:6] = self.action[0:6]*self._action_scale + self.default_pos[0:6]
         self.joint_pos_tg = np.zeros(16)
-        if(self.action[6]>0):
+        if(self.action[6]<0):
             self.joint_pos_tg[6:8] = np.array([-0.013, -0.013])
         else:
             self.joint_pos_tg[6:8] = np.zeros(2)

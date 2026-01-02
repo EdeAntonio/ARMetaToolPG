@@ -93,7 +93,7 @@ class RoboHabilisTask(object):
         stage_utils.add_reference_to_stage(object_usd_path, object_prim_path)
         object = RigidPrim(
             prim_paths_expr=object_prim_path, name=object_name, positions=object_position, orientations=object_rotation,
-            scales=object_scales, collision
+            scales=object_scales
         )
         self.world.scene.add(object)
 
