@@ -13,6 +13,8 @@
 **/*.usda
 **/*.usdc
 **/*.usdz
+# Excepciones
+!source/ARMetaToolPG/data/**/*.usd
 
 # Python
 .DS_Store
