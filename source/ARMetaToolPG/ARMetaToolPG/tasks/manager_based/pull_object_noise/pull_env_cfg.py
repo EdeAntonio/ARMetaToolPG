@@ -140,10 +140,10 @@ class ObservationsCfg:
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
 
-        joint_pos = ObsTerm(func=mdp.joint_pos_rel, noise=GaussianNoiseCfg(mean=0.0, std=0.01, operation="add"))
-        joint_vel = ObsTerm(func=mdp.joint_vel_rel, noise=GaussianNoiseCfg(mean=0.0, std=0.01, operation="add"))
-        tool_position = ObsTerm(func=mdp.tool_position_in_robot_root_frame, noise=GaussianNoiseCfg(mean=0.0, std=0.1, operation="add"))
-        object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame, noise=GaussianNoiseCfg(mean=0.0, std=0.1, operation="add"))
+        joint_pos = ObsTerm(func=mdp.joint_pos_rel)
+        joint_vel = ObsTerm(func=mdp.joint_vel_rel, noise=GaussianNoiseCfg(mean=0.0, std=0.02, operation="add"))
+        tool_position = ObsTerm(func=mdp.tool_position_in_robot_root_frame, noise=GaussianNoiseCfg(mean=0.0, std=0.03, operation="add"))
+        object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame, noise=GaussianNoiseCfg(mean=0.0, std=0.03, operation="add"))
         target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)
 
@@ -195,7 +195,7 @@ class EventCfg:
         params={
             "asset_cfg" : SceneEntityCfg(name="object"),
             "mass_distribution_params": (0.8,1.2),
-            "operation": "add",
+            "operation": "scale",
             "distribution": "uniform"
         }
     )
@@ -206,7 +206,7 @@ class EventCfg:
         params={
             "asset_cfg" : SceneEntityCfg(name="tool"),
             "mass_distribution_params": (0.8,1.2),
-            "operation": "add",
+            "operation": "scale",
             "distribution": "uniform"
         }
     )
@@ -258,7 +258,7 @@ class RewardsCfg:
     
     reaching_object = RewTerm(func=mdp.object_tool_distance, params={"std": 0.1}, weight=20.0)
 
-    lifting_tool = RewTerm(func=mdp.tool_is_lifted, params={"minimal_height": 0.1}, weight=15.0)
+    lifting_tool = RewTerm(func=mdp.tool_is_lifted, params={"minimal_height": 0.07}, weight=15.0)
 
     #grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.1}, weight=8.0) # FOR FRANKA EMIKA
     # grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.1, "gripper_open_val": torch.tensor([0.013])}, weight=8.0) # FOR ROBOHABILIS
