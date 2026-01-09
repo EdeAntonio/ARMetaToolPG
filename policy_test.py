@@ -2,11 +2,16 @@ import os
 import torch
 import numpy as np
 
+from isaacsim import SimulationApp
+
+simulation_app = SimulationApp({"headless": True})
+
+
 from isaacsim.robot.policy.examples.controllers.config_loader import get_robot_joint_properties, parse_env_config
 
 # Ajusta esta ruta a donde tengas tu modelo
-POLICY_FILE = "/home/eantonio/ARMetaToolPG/source/ARMetaToolPG/ARMetaToolPG/assets/policys/policy_pull_object_rh/policy.pt"
-POLICY_ENV_FILE= "/home/eantonio/ARMetaToolPG/source/ARMetaToolPG/ARMetaToolPG/assets/policys/policy_pull_object_rh/env.yaml"
+POLICY_FILE = "/home/mt/ARMetaToolPG/source/ARMetaToolPG/ARMetaToolPG/assets/policys/policy_pull_object_rh/policy.pt"
+POLICY_ENV_FILE= "/home/mt/ARMetaToolPG/source/ARMetaToolPG/ARMetaToolPG/assets/policys/policy_pull_object_rh/env.yaml"
 
 print(f"Test de política RoboHabilis: {POLICY_FILE}")
 

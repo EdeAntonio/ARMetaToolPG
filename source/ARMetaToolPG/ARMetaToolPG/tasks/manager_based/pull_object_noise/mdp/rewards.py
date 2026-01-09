@@ -52,13 +52,14 @@ def tool_is_grasped(
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     diff_threshold: float = 0.06,
     # gripper_open_val: torch.tensor = torch.tensor([0.04]), # FRANKA EMIKA
-    gripper_open_val: torch.tensor = torch.tensor([0.013]), # ROBOHABILIS
+    gripper_open_val: torch.tensor = torch.tensor([0.010]), # ROBOHABILIS
     gripper_threshold: float = 0.005,
 ) -> torch.Tensor:
     """Reward the agent for grasping the object."""
     tool: RigidObject = env.scene[tool_cfg.name]
     robot: Articulation = env.scene[robot_cfg.name]
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+    tool_contact_sensor: ContactSensor = env.scene[tool_contact_sensor_cfg.name]
 
     tool_pos = tool.data.root_pos_w
     ee_pos = ee_frame.data.target_pos_w[:, 0, :]
@@ -71,7 +72,10 @@ def tool_is_grasped(
     grasped = torch.logical_and(
         grasped, torch.abs(robot.data.joint_pos[:, -2] - gripper_open_val.to(env.device)) > gripper_threshold
     )  
-    
+
+    tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()    
+    grasped = torch.logical_and(grasped, tool_contact_active)
+
 #    grasped = torch.logical_and(
 #        pose_diff < diff_threshold,
 #        torch.sub(torch.abs(robot.data.joint_pos[:, -1]), gripper_open_val.to(env.device)) < gripper_threshold,
@@ -94,36 +98,18 @@ def tool_is_grasped(
 
 def object_is_pulled(
     env: ManagerBasedRLEnv,
-    std: float, 
-    tool_cfg: SceneEntityCfg = SceneEntityCfg("tool"),
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     object_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("object_contact_sensor"),
     tool_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("tool_contact_sensor"),
 ) -> torch.Tensor:
-    """Reward the agent for grasping the object."""
-    tool: RigidObject = env.scene[tool_cfg.name]
-    object: RigidObject = env.scene[object_cfg.name]
     object_contact_sensor: ContactSensor = env.scene[object_contact_sensor_cfg.name]
     tool_contact_sensor: ContactSensor = env.scene[tool_contact_sensor_cfg.name]
     # minimal_distance = 0.1
     # Check robot tool active contact (current_contact_time > 0)
-    tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0.01).float()
-    # Check tool object active contact (current_contact_time > 0)
-    object_contact_active = (torch.norm(object_contact_sensor.data.net_forces_w, -1) > 0.01).float()
-    # Get positions of tool and object
-    tool_pos_w = tool.data.root_pos_w # Target object position: (num_envs, 3)
-    object_pos_w = object.data.root_pos_w # End-effector position: (num_envs, 3)
-    object_tool_distance = torch.norm(tool_pos_w - object_pos_w, dim=1) # Distance of the end-effector to the object: (num_envs,)
-    # Determine if the object is near the tool
-    # object_tool_distance = torch.where(object_tool_distance > minimal_distance, object_tool_distance, 0.0)
+    tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).float()
+    object_contact_active = (torch.norm(object_contact_sensor.data.net_forces_w, -1) > 0).float()
     valid_contact = (tool_contact_active * object_contact_active).bool()
-    object_tool_distance = torch.where(valid_contact, 0.0, object_tool_distance)
-    # Compute distance-based reward component
-    distance_reward = 1 - torch.tanh(object_tool_distance / std)
-    #Combine contact presence and proximity reward
-    total_reward = object_contact_active * distance_reward * tool_contact_active
     # total_reward = object_contact_active * tool_contact_active
-    return total_reward
+    return valid_contact
 
 def tool_is_lifted(
     env: ManagerBasedRLEnv, 

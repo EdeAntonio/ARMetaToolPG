@@ -42,7 +42,7 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
             asset_name="robot",
             joint_names=["l_.*_finger_joint"],
             open_command_expr={"l_.*_finger_joint": 0.0},
-            close_command_expr={"l_.*_finger_joint": -0.013},
+            close_command_expr={"l_.*_finger_joint": -0.4},
         )
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "l_gripper_body"
@@ -54,7 +54,7 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
             spawn=UsdFileCfg(
                 usd_path=f"{ARMT_ASSETS_DATA_DIR}/Tool/big_hook.usd",
                 # usd_path=f"{MT_ASSETS_DATA_DIR}/Tool/usd/simple_L.usd",
-                scale=(0.001, 0.001, 0.001),
+                scale=(0.0005, 0.0005, 0.001),
                 rigid_props=RigidBodyPropertiesCfg(
                     solver_position_iteration_count=16,
                     solver_velocity_iteration_count=1,

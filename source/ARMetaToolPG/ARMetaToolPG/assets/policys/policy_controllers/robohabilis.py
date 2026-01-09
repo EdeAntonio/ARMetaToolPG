@@ -26,9 +26,10 @@ class RobohabilisPullObjectPolicy(PolicyController):
         orientation: Optional[np.ndarray] = None,
     ) -> None:
         
-        policy_path = "/home/eantonio/ARMetaToolPG/source/ARMetaToolPG/ARMetaToolPG/assets/policys/policy_pull_object_rh/"
+        policy_path = ARMT_ASSETS_DIR + "/policys/policy_pull_object_rh/"
         usd_path = ARMT_ASSETS_DATA_DIR + "/robohabilis/robohabilis_Isaaclab.usd"
         print(usd_path)
+        print(policy_path)
         stage_utils.add_reference_to_stage(usd_path, prim_path)
         super().__init__(name, prim_path, root_path, usd_path, position, orientation)
 
@@ -80,7 +81,7 @@ class RobohabilisPullObjectPolicy(PolicyController):
         self.action[0:6] = self.action[0:6]*self._action_scale + self.default_pos[0:6]
         self.joint_pos_tg = np.zeros(16)
         if(self.action[6]<0):
-            self.joint_pos_tg[6:8] = np.array([-0.013, -0.013])
+            self.joint_pos_tg[6:8] = np.array([-0.4, -0.4])
         else:
             self.joint_pos_tg[6:8] = np.zeros(2)
         
@@ -94,7 +95,6 @@ class RobohabilisPullObjectPolicy(PolicyController):
     def initialize(self, physics_sim_view=None) -> None:
 
         super().initialize(physics_sim_view=physics_sim_view, control_mode="force", set_articulation_props=True)
-        self.robot.set_joint_positions(self.default_pos)
 
         self.tool.initialize(physics_sim_view=physics_sim_view)
         self.object.initialize(physics_sim_view=physics_sim_view)

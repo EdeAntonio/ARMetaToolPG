@@ -4,11 +4,13 @@ import numpy as np
 
 import omni
 
+import torch
+
 from isaacsim.core.api.world import World
 from isaacsim.core.prims import RigidPrim
 import isaacsim.core.utils.stage as stage_utils
 from isaacsim.core.api import SimulationContext
-
+from isaacsim.core.utils.types import ArticulationAction
 
 from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
 from ARMetaToolPG.assets.policys.policy_controllers.robohabilis import RobohabilisPullObjectPolicy
@@ -21,6 +23,7 @@ ISAAC_NUCLEUS_DIR = f"{NUCLEUS_ASSET_ROOT_DIR}/Isaac"
 
 settings=carb.settings.get_settings()
 settings.set("/log/level", "error")
+settings.set("/log/level/omni.hydra", "error")
 
 async def load_robohabilis():
     try:
@@ -32,14 +35,18 @@ async def load_robohabilis():
     except Exception as e:
         import traceback
         print("EXCEPCIÓN EN load_robohabilis")
+        print(torch.__version__)
         traceback.print_exc()
 
 
 
 class RoboHabilisTask(object):
     def __init__(self):
+
         if World.instance():
             World.instance().clear_instance()
+        
+        omni.usd.get_context().new_stage()
 
         self.world=World(
             physics_dt=1.0/60.0,
@@ -87,8 +94,8 @@ class RoboHabilisTask(object):
         object_usd_path = f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd"
         object_name = "object"
         object_position = np.array([[0.6, -0.4, 0.055]], dtype=float)
-        object_rotation = np.array([[0.0, 0.0, 0.0, 1.0]], dtype=float)
-        object_scales=np.array([[0.0005, 0.0005, 0.0005]], dtype=float)
+        object_rotation = np.array([[1.0, 0.0, 0.0, 0.0]], dtype=float)
+        object_scales=np.array([[1.0, 1.0, 1.0]], dtype=float)
 
         stage_utils.add_reference_to_stage(object_usd_path, object_prim_path)
         object = RigidPrim(
@@ -101,7 +108,6 @@ class RoboHabilisTask(object):
             prim_path="/World/robohabilis", name="robohabilis", position=np.array([[0, 0, 0]]), tool=tool, 
             object=object, table=table
         )
-
         print("Escena creada.\n")
 
     async def load_world_async(self):
@@ -128,11 +134,16 @@ class RoboHabilisTask(object):
         self.robohabilis.initialize()
         self.robohabilis.post_reset()
         self.robohabilis.robot.set_joints_default_state(self.robohabilis.default_pos)
+        self.robohabilis.default_pos[14] = -0.8
+        self.robohabilis.default_pos[12] = -0.8
+        print(self.robohabilis.default_pos)
+        self.robohabilis.robot.set_joint_positions(self.robohabilis.default_pos)
 
         await self.world.play_async()
 
     def on_physics_step(self, step_size) -> None:
-        self.robohabilis.forward(step_size)
+        pass
+        #self.robohabilis.forward(step_size)
 
 
 asyncio.ensure_future(load_robohabilis())
