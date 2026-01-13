@@ -53,7 +53,7 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.143, -0.3161, 0.008], rot=[1, 0, 0, 0]), # pos=[0.273, -0.3181, 0.005],rot=[0.08716, 0, 0, -0.99619]
             spawn=UsdFileCfg(
                 usd_path=f"{ARMT_ASSETS_DATA_DIR}/Tool/big_hook.usd",
-                scale=(0.001, 0.001, 0.001),
+                scale=(0.0005, 0.0005, 0.001),
                 rigid_props=RigidBodyPropertiesCfg(
                     solver_position_iteration_count=16,
                     solver_velocity_iteration_count=1,

@@ -38,11 +38,12 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", joint_names=["l_shoulder_pan_joint","l_shoulder_lift_joint","l_elbow_joint","l_wrist_1_joint","l_wrist_2_joint","l_wrist_3_joint"], scale=0.5, use_default_offset=True
         )
-        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
+        self.actions.gripper_action = mdp.AbsBinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["l_.*_finger_joint"],
             open_command_expr={"l_.*_finger_joint": 0.0},
-            close_command_expr={"l_.*_finger_joint": -0.4},
+            close_command_expr={"l_.*_finger_joint": -0.013},
+            threshold = 0.75
         )
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "l_gripper_body"

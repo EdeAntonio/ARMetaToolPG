@@ -134,8 +134,8 @@ class RoboHabilisTask(object):
         self.robohabilis.initialize()
         self.robohabilis.post_reset()
         self.robohabilis.robot.set_joints_default_state(self.robohabilis.default_pos)
-        self.robohabilis.default_pos[14] = -0.8
-        self.robohabilis.default_pos[12] = -0.8
+        self.robohabilis.default_pos[14] = -0.4
+        self.robohabilis.default_pos[12] = -0.4
         print(self.robohabilis.default_pos)
         self.robohabilis.robot.set_joint_positions(self.robohabilis.default_pos)
 
