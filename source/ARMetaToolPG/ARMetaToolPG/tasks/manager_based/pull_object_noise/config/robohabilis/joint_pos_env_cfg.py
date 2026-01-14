@@ -38,15 +38,14 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", joint_names=["l_shoulder_pan_joint","l_shoulder_lift_joint","l_elbow_joint","l_wrist_1_joint","l_wrist_2_joint","l_wrist_3_joint"], scale=0.5, use_default_offset=True
         )
-        self.actions.gripper_action = mdp.AbsBinaryJointPositionActionCfg(
+        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["l_.*_finger_joint"],
             open_command_expr={"l_.*_finger_joint": 0.0},
-            close_command_expr={"l_.*_finger_joint": -0.013},
-            threshold = 0.75
+            close_command_expr={"l_.*_finger_joint": -0.013}
         )
         # Set the body name for the end effector
-        self.commands.object_pose.body_name = "l_gripper_body"
+        self.commands.object_pose.body_name = "l_gripper_center"
 
         # Define tool as rigid object
         self.scene.tool = RigidObjectCfg(
@@ -78,7 +77,7 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
             visualizer_cfg=marker_cfg,
             target_frames=[
                 FrameTransformerCfg.FrameCfg(
-                    prim_path="{ENV_REGEX_NS}/Robot/l_gripper_body",
+                    prim_path="{ENV_REGEX_NS}/Robot/l_gripper_center",
                     name="end_effector",
                     offset=OffsetCfg(
                         pos=[0.0, 0.0, 0.1034],

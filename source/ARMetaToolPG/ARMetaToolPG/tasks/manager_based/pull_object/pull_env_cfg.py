@@ -208,7 +208,7 @@ class RewardsCfg:
     lifting_tool = RewTerm(func=mdp.tool_is_lifted, params={"minimal_height": 0.05}, weight=5.0)
 
     #grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.1}, weight=8.0) # FOR FRANKA EMIKA
-    #grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.1, "gripper_open_val": torch.tensor([0.013])}, weight=8.0) # FOR ROBOHABILIS
+    grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.1, "gripper_open_val": torch.tensor([0.013])}, weight=8.0) # FOR ROBOHABILIS
 
     pulling_object = RewTerm(func=mdp.object_is_pulled, params={"std": 0.2}, weight=10.0)
 

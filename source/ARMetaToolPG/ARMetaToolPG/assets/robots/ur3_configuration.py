@@ -18,13 +18,15 @@ UR3_CFG = ArticulationCfg(
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         joint_pos={
-            "shoulder_pan_joint": 0.0,
-            "shoulder_lift_joint": -1.712,
-            "elbow_joint": 1.712,
-            "wrist_1_joint": 0.0,
-            "wrist_2_joint": 0.0,
-            "wrist_3_joint": 0.0,
+            "shoulder_pan_joint": -1.57,
+            "shoulder_lift_joint": -1.744,
+            "elbow_joint": 1.57,
+            "wrist_1_joint": (4.71-6.283),
+            "wrist_2_joint": (4.71-6.283),
+            "wrist_3_joint": (4.36-6.283),
         },
+        pos = [0.0, 0.0, 0.0],
+        rot = [0.5253219888177297, 0.0, 0.0, 0.8509035245341184]
     ),
     actuators={
         "arm": ImplicitActuatorCfg(

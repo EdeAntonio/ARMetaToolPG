@@ -43,12 +43,12 @@ class ReachSceneCfg(InteractiveSceneCfg):
     ground = AssetBaseCfg(
         prim_path="/World/ground",
         spawn=sim_utils.GroundPlaneCfg(),
-        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -1.05)),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -0.82)),
     )
 
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=(-0.09, 0.56, -0.825), rot=(0.70711, 0.0, 0.0, -0.70711)),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, -0.200, -0.79), rot=(1.0, 0.0, 0.0, 0.0)),
         spawn=sim_utils.UsdFileCfg(
             usd_path=f"{ARMT_ASSETS_DATA_DIR}/Table/MT_table.usd",
         activate_contact_sensors = True

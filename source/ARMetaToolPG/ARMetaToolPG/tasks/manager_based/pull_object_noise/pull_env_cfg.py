@@ -254,20 +254,20 @@ class RewardsCfg:
     #     weight=30.0,
     # )
 
-    reaching_tool = RewTerm(func=mdp.tool_ee_distance, params={"std": 0.05}, weight=3.0)
+    reaching_tool = RewTerm(func=mdp.tool_ee_distance, params={"std": 0.1}, weight=3.0)
     
-    reaching_object = RewTerm(func=mdp.object_tool_distance, params={"std": 0.1}, weight=5.0)
+    reaching_object = RewTerm(func=mdp.object_tool_distance, params={"std": 0.3}, weight=20.0)
 
-    lifting_tool = RewTerm(func=mdp.tool_is_lifted, params={"minimal_height": 0.08}, weight=15.0)
+    lifting_tool = RewTerm(func=mdp.tool_is_lifted, params={"minimal_height": 0.05}, weight=5.0)
 
     #grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.1}, weight=8.0) # FOR FRANKA EMIKA
-    grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std": 0.07}, weight=8.0) # FOR ROBOHABILIS
+    grasping_tool = RewTerm(func=mdp.tool_is_grasped, params={"std":0.2, "gripper_threshold": 0.003}, weight=8.0) # FOR ROBOHABILIS
 
     pulling_object = RewTerm(func=mdp.object_is_pulled, weight=10.0)
     
     object_goal_tracking = RewTerm(
         func=mdp.object_goal_distance,
-        params={"std": 0.15, "command_name": "object_pose"},
+        params={"std": 0.3, "command_name": "object_pose"},
         weight=40.0,
     )
 

@@ -41,12 +41,17 @@ class UR3ReachEnvCfg(ReachEnvCfg):
         # Ajustar el nombre para la referencia de las comandas
         self.commands.ee_pose.body_name = "gripper_center"
         # self.commands.ee_pose.ranges.pitch = (math.pi/2, math.pi/2)
-        self.commands.ee_pose.ranges.pos_x = (0.15, 0.40)
-        self.commands.ee_pose.ranges.pos_z = (0.15, 0.30)
-        self.commands.ee_pose.ranges.pos_y = (-0.30, 0.20)
+        self.commands.ee_pose.ranges.pos_y = (-0.40, -0.20)
+        self.commands.ee_pose.ranges.pos_z = (0.15, 0.35)
+        self.commands.ee_pose.ranges.pos_x = (-0.20, 0.30)
 
         # Modificaciones
-        self.commands.ee_pose.ranges.pitch = (math.pi/4, math.pi* 3/4)
+        #self.commands.ee_pose.ranges.pitch = (math.pi/4, math.pi* 3/4)
+        #self.commands.ee_pose.ranges.yaw = (-math.pi/2, math.pi/2)
+
+        # Modificaciones sim2real
+        self.commands.ee_pose.ranges.roll = (math.pi, math.pi)
+        self.commands.ee_pose.ranges.pitch = (0, 0)
         self.commands.ee_pose.ranges.yaw = (-math.pi/2, math.pi/2)
 
         # Contacto con mesa
