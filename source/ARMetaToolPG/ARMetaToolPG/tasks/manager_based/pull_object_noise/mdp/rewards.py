@@ -52,7 +52,7 @@ def tool_is_grasped(
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     diff_threshold: float = 0.06,
     # gripper_open_val: torch.tensor = torch.tensor([0.04]), # FRANKA EMIKA
-    gripper_open_val: torch.tensor = torch.tensor([0.0]), # ROBOHABILIS
+    gripper_open_val: torch.tensor = torch.tensor([0.013]), # ROBOHABILIS
     gripper_threshold: float = 0.003,
 ) -> torch.Tensor:
     """Reward the agent for grasping the object."""
@@ -72,8 +72,9 @@ def tool_is_grasped(
     #grasped = torch.logical_and(
     #    grasped, (torch.abs(robot.data.joint_pos[:, -2]) - gripper_open_val.to(env.device)) > gripper_threshold
     #) 
-
-    grasped = torch.logical_and(pose_diff<diff_threshold, torch.ones_like(pose_diff)).float() * torch.tanh(torch.abs(robot.data.joint_pos[:, -1])/gripper_threshold)
+    
+    #grasped = torch.logical_and(pose_diff<diff_threshold, torch.ones_like(pose_diff)).float() * (torch.tanh(torch.abs(robot.data.joint_pos[:, -1]-0.06)/gripper_threshold))
+    grasped = (pose_diff<diff_threshold).float()* torch.tanh(robot.data.joint_pos[:, -1]/(-0.010))
 
     #tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()    
     #grasped = torch.logical_and(grasped, tool_contact_active)
@@ -117,14 +118,14 @@ def tool_is_lifted(
     env: ManagerBasedRLEnv, 
     minimal_height: float, 
     tool_cfg: SceneEntityCfg = SceneEntityCfg("tool"),
-    tool_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("tool_contact_sensor")
+    #tool_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("tool_contact_sensor")
 ) -> torch.Tensor:
-    tool_contact_sensor: ContactSensor = env.scene[tool_contact_sensor_cfg.name]
+    #tool_contact_sensor: ContactSensor = env.scene[tool_contact_sensor_cfg.name]
     object: RigidObject = env.scene[tool_cfg.name]
     tool_high = torch.where(object.data.root_pos_w[:, 2] > minimal_height, 1.0, 0.0)
-    tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()
-    lifted = torch.logical_and(tool_high, tool_contact_active).float()
-    return lifted
+    #tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()
+    #lifted = torch.logical_and(tool_high, tool_contact_active).float()
+    return tool_high
 
 def tool_ee_distance(
     env: ManagerBasedRLEnv,
@@ -151,26 +152,26 @@ def object_tool_distance(
     std: float,
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     tool_cfg: SceneEntityCfg = SceneEntityCfg("tool"),
-    #tool_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("tool_contact_sensor")
+    tool_contact_sensor_cfg: SceneEntityCfg = SceneEntityCfg("tool_contact_sensor")
 ) -> torch.Tensor:
     """Reward the agent for reaching the object with the tool using tanh-kernel."""
     # minimal_distance = 0.15
     # extract the used quantities (to enable type-hinting)
     object: RigidObject = env.scene[object_cfg.name]
     tool: RigidObject = env.scene[tool_cfg.name]
-    #tool_contact_sensor: ContactSensor = env.scene[tool_contact_sensor_cfg.name]
+    tool_contact_sensor: ContactSensor = env.scene[tool_contact_sensor_cfg.name]
     # Target object position: (num_envs, 3)
     object_pos_w = object.data.root_pos_w#[...,:2]
     # End-effector position: (num_envs, 3)
     tool_pos_w = tool.data.root_pos_w#[...,:2]
     # Distance of the end-effector to the object: (num_envs,)
     
-    #tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()
+    tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()
     object_tool_distance = torch.norm(tool_pos_w - object_pos_w, dim=1)
-    #object_tool_distance = torch.where(tool_contact_active, object_tool_distance, 100)
+    object_tool_distance = torch.where(tool_contact_active, object_tool_distance, 100)
     
 
-    # object_tool_distance = torch.where(object_tool_distance > minimal_distance, object_tool_distance, 0.0)
+    #object_tool_distance = torch.where(object_tool_distance > minimal_distance, object_tool_distance, 0.0)
 
     return  1.0 - torch.tanh(object_tool_distance / std)
 
@@ -258,3 +259,7 @@ def touch_desk(env: ManagerBasedRLEnv,
     contact_active = (torch.norm(robot_desk_contact_sensor.data.net_forces_w, -1) > 0.01).bool()
     return torch.where(contact_active, 1, 0)
 
+def gripper_closed(env:ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
+    robot: RigidObject = env.scene[robot_cfg.name]
+    print(robot.data.joint_pos[:, -1])
+    return torch.tanh(robot.data.joint_pos[:, -1]/-0.008)

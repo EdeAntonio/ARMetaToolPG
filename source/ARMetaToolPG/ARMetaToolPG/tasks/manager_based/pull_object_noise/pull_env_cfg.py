@@ -129,7 +129,7 @@ class ActionsCfg:
 
     # will be set by agent env cfg
     arm_action: mdp.JointPositionActionCfg | mdp.DifferentialInverseKinematicsActionCfg = MISSING
-    gripper_action: mdp.BinaryJointPositionActionCfg = MISSING
+    gripper_action: mdp.BinaryJointActionCfg = MISSING
 
 
 @configclass
@@ -298,8 +298,11 @@ class RewardsCfg:
         weight=-1e-4,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
-
-    touch_desk = RewTerm(func=mdp.touch_desk, weight = -3)
+    close_gripper = RewTerm(
+        func=mdp.gripper_closed,
+        weight=15
+    )
+    #touch_desk = RewTerm(func=mdp.touch_desk, weight = -3)
 
 
 @configclass

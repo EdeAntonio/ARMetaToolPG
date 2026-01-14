@@ -13,6 +13,7 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
 from ARMetaToolPG.tasks.manager_based.pull_object_noise import mdp
+from isaaclab.envs.mdp.actions.actions_cfg import BinaryJointPositionActionCfg
 from ARMetaToolPG.tasks.manager_based.pull_object_noise.pull_env_cfg import PullEnvCfg 
 from ARMetaToolPG.utils.convert_mesh import *
 from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
@@ -38,14 +39,14 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", joint_names=["l_shoulder_pan_joint","l_shoulder_lift_joint","l_elbow_joint","l_wrist_1_joint","l_wrist_2_joint","l_wrist_3_joint"], scale=0.5, use_default_offset=True
         )
-        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
+        self.actions.gripper_action = BinaryJointPositionActionCfg(
             asset_name="robot",
-            joint_names=["l_.*_finger_joint"],
-            open_command_expr={"l_.*_finger_joint": 0.0},
-            close_command_expr={"l_.*_finger_joint": -0.013}
+            joint_names=["l_left_finger_joint", "l_right_finger_joint"],
+            open_command_expr={"l_left_finger_joint": 0.0, "l_right_finger_joint": 0.0},
+            close_command_expr={"l_left_finger_joint": -0.013, "l_right_finger_joint": -0.013}
         )
         # Set the body name for the end effector
-        self.commands.object_pose.body_name = "l_gripper_center"
+        self.commands.object_pose.body_name = "l_gripper_body"
 
         # Define tool as rigid object
         self.scene.tool = RigidObjectCfg(
@@ -77,7 +78,7 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
             visualizer_cfg=marker_cfg,
             target_frames=[
                 FrameTransformerCfg.FrameCfg(
-                    prim_path="{ENV_REGEX_NS}/Robot/l_gripper_center",
+                    prim_path="{ENV_REGEX_NS}/Robot/l_gripper_body",
                     name="end_effector",
                     offset=OffsetCfg(
                         pos=[0.0, 0.0, 0.1034],
