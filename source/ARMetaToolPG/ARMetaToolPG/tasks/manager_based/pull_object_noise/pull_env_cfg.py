@@ -25,7 +25,9 @@ from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import GaussianNoiseCfg
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+
 from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
+from ARMetaToolPG.tasks.manager_based.pull_object_noise.mdp.events import reset_tool_in_grasp
 
 from . import mdp
 
@@ -210,27 +212,24 @@ class EventCfg:
             "distribution": "uniform"
         }
     )
-
     
     # Add this to ensure the tool is grasped after the general reset
-    # reset_tool_to_grasp = EventTerm(
-    #     func=mdp.reset_tool_in_grasp,
-    #     mode="reset",
-    #     params={
-    #         "ee_offset": [0.0, 0.0, 0.05],  # Offset from the end-effector (may need adjustment based on tool)
-    #         "asset_cfg": SceneEntityCfg("tool"),
-    #     },
-    # )
+    reset_tool_to_grasp = EventTerm(
+        func=mdp.reset_tool_in_grasp,
+        mode="reset",
+        params={
+        },
+    )
 
-    # reset_object_position = EventTerm(
-    #     func=mdp.reset_root_state_uniform,
-    #     mode="reset",
-    #     params={
-    #         "pose_range": {"x": (-0.05, 0.05), "y": (-0.15, 0.15), "z": (0.0, 0.0)},
-    #         "velocity_range": {},
-    #         "asset_cfg": SceneEntityCfg("object", body_names="Object"),
-    #     },
-    # )
+    reset_object_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.05, 0.05), "y": (-0.15, 0.15), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("object", body_names="Object"),
+        },
+    )
 
 
 @configclass
@@ -298,10 +297,10 @@ class RewardsCfg:
         weight=-1e-4,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
-    close_gripper = RewTerm(
-        func=mdp.gripper_closed,
-        weight=15
-    )
+    #close_gripper = RewTerm(
+    #    func=mdp.gripper_closed,
+    #    weight=15
+    #)
     #touch_desk = RewTerm(func=mdp.touch_desk, weight = -3)
 
 

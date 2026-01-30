@@ -12,8 +12,9 @@ from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
+from isaaclab.envs import ManagerBasedRLEnv
+
 from ARMetaToolPG.tasks.manager_based.pull_object_noise import mdp
-from isaaclab.envs.mdp.actions.actions_cfg import BinaryJointPositionActionCfg
 from ARMetaToolPG.tasks.manager_based.pull_object_noise.pull_env_cfg import PullEnvCfg 
 from ARMetaToolPG.utils.convert_mesh import *
 from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
@@ -22,7 +23,7 @@ from ARMetaToolPG.assets import ARMT_ASSETS_DATA_DIR
 # Pre-defined configs
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from ARMetaToolPG.assets.robots.robohabilis import L_ROBOHABILIS_CFG
+from ARMetaToolPG.assets.robots.robohabilis import ROBOHABILIS_CFG
 
 
 @configclass
@@ -33,16 +34,16 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
         # Allow for multiobject simulation
         # self.scene.replicate_physics= False
         # Set Robohabilis as robot
-        self.scene.robot = L_ROBOHABILIS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = ROBOHABILIS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (Robohabilis right arm)
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", joint_names=["l_shoulder_pan_joint","l_shoulder_lift_joint","l_elbow_joint","l_wrist_1_joint","l_wrist_2_joint","l_wrist_3_joint"], scale=0.5, use_default_offset=True
         )
-        self.actions.gripper_action = BinaryJointPositionActionCfg(
+        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["l_left_finger_joint", "l_right_finger_joint"],
-            open_command_expr={"l_left_finger_joint": 0.0, "l_right_finger_joint": 0.0},
+            open_command_expr={"l_left_finger_joint": -0.013, "l_right_finger_joint": -0.013},
             close_command_expr={"l_left_finger_joint": -0.013, "l_right_finger_joint": -0.013}
         )
         # Set the body name for the end effector
@@ -66,7 +67,8 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
                 ),
             ),
         )
-        
+
+
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()
         marker_cfg.markers["frame"].scale = (0.1, 0.1, 0.1)
@@ -123,7 +125,6 @@ class RobohabilisCubePullEnvCfg(PullEnvCfg):
             update_period=0.0,
             debug_vis=True,
         )
-
 
 
 @configclass

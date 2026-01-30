@@ -23,46 +23,67 @@ if TYPE_CHECKING:
 
 # Add this to the mdp.py file to create a function that ensures the tool is grasped
 
-# def reset_tool_in_grasp(
-#         env: ManagerBasedEnv, params=None):
-#     """Reset tool to be at the robot's end-effector (grasped position).
-    
-#     Args:
-#         env: The environment instance.
-#         params: Additional parameters with keys:
-#             - ee_offset: Optional offset from the end-effector position
-#             - asset_cfg: Scene entity configuration for the tool
-#     """
-#     # Default parameters
-#     if params is None:
-#         params = {}
-        
-#     # Get the parameters
-#     ee_offset = params.get("ee_offset", [0.0, 0.0, 0.0])
-#     asset_cfg = params.get("asset_cfg", SceneEntityCfg("tool"))
-    
-#     # Get the tool asset
-#     tool_asset = env.scene.get_asset(asset_cfg.name)
-#     tool_bodies = asset_cfg.get_bodies_in_asset(tool_asset)
-    
-#     # Get the end-effector position and orientation
-#     ee_frame = env.scene.ee_frame
-#     ee_pos, ee_rot = ee_frame.get_world_pose()
-    
-#     # Apply offset to the position (in ee frame)
-#     offset_pos = sim_utils.transform_points(ee_offset, ee_pos, ee_rot)
-    
-#     # Set the tool position and orientation to match the end-effector
-#     for env_idx in range(env.num_envs):
-#         for body in tool_bodies:
-#             # Set the position and orientation
-#             tool_asset.set_rigid_body_pose(body, offset_pos[env_idx], ee_rot[env_idx], env_indices=env_idx)
-            
-#             # Zero out velocities
-#             tool_asset.set_rigid_body_linear_velocity(body, [0.0, 0.0, 0.0], env_indices=env_idx)
-#             tool_asset.set_rigid_body_angular_velocity(body, [0.0, 0.0, 0.0], env_indices=env_idx)
-    
-#     return
+def reset_tool_in_grasp(
+        env: ManagerBasedEnv, 
+        env_ids: torch.Tensor
+    ):
+    """Reset tool to be at the robot's end-effector (grasped position).
+
+    Args:
+        env: The environment instance.
+        params: Additional parameters with keys:
+            - ee_offset: Optional offset from the end-effector position
+            - asset_cfg: Scene entity configuration for the tool
+    """
+    # Default parameters
+
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("tool")
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+
+    # Get the tool asset
+    tool_asset = env.scene[asset_cfg.name]
+    robot = env.scene[robot_cfg.name]
+    body_idx = robot.find_bodies("l_gripper_center")
+    print(body_idx)
+
+    # Get the end-effector position and orientation
+    ee_frame = robot
+    print(ee_frame.data.body_link_pose_w[env_ids, 25, :])
+    ee_pose = ee_frame.data.body_link_pose_w[env_ids, 25, :]
+    #ee_pos = ee_pose[:, :3]
+    #ee_rot=ee_pose[:, 3:]
+#
+    #ee_offset = torch.tensor([0.0, 0.0, 0.0]).repeat(len(env_ids), 1).to(env.device)
+    #
+    ## Apply offset to the position (in ee frame)
+    #offset_pos = math_utils.transform_points(ee_offset, ee_pos, ee_rot).squeeze(-2).to(env.device)
+    #root_pose = torch.cat([offset_pos, ee_rot], dim=-1)
+
+    vel= torch.zeros(len(env_ids), 6, device=env.device)
+
+    tool_asset.write_root_pose_to_sim(ee_pose[env_ids], env_ids)
+    tool_asset.write_root_velocity_to_sim(vel, env_ids)
+
+
+    # Joint positions actuales
+    q = torch.tensor([-0.013, -0.013]).to(env.device)
+
+    # Índices de joints del gripper
+    finger_ids = [12, 13]
+
+    robot.write_joint_position_to_sim(q, finger_ids, env_ids)
+
+   # Set the tool position and orientation to match the end-effector
+    #for env_idx in range(env.num_envs):
+    #    for body in tool_bodies:
+    #        # Set the position and orientation
+    #        tool_asset.set_rigid_body_pose(body, offset_pos[env_idx], ee_rot[env_idx], env_indices=env_idx)
+    #      
+    #        # Zero out velocities
+    #        tool_asset.set_rigid_body_linear_velocity(body, [0.0, 0.0, 0.0], env_indices=env_idx)
+    #        tool_asset.set_rigid_body_angular_velocity(body, [0.0, 0.0, 0.0], env_indices=env_idx)
+
+    return
 
 
 # def reset_tool_in_grasp(

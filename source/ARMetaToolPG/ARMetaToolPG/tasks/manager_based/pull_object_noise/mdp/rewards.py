@@ -74,7 +74,7 @@ def tool_is_grasped(
     #) 
     
     #grasped = torch.logical_and(pose_diff<diff_threshold, torch.ones_like(pose_diff)).float() * (torch.tanh(torch.abs(robot.data.joint_pos[:, -1]-0.06)/gripper_threshold))
-    grasped = (pose_diff<diff_threshold).float()* torch.tanh(robot.data.joint_pos[:, -1]/(-0.010))
+    grasped = (pose_diff<diff_threshold).float()* torch.tanh(robot.data.joint_pos[:, 12]/(-0.008))
 
     #tool_contact_active = (torch.norm(tool_contact_sensor.data.net_forces_w, -1) > 0).bool()    
     #grasped = torch.logical_and(grasped, tool_contact_active)
@@ -261,5 +261,4 @@ def touch_desk(env: ManagerBasedRLEnv,
 
 def gripper_closed(env:ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     robot: RigidObject = env.scene[robot_cfg.name]
-    print(robot.data.joint_pos[:, -1])
-    return torch.tanh(robot.data.joint_pos[:, -1]/-0.008)
+    return torch.tanh(robot.data.joint_pos[:, 12]/-0.008)

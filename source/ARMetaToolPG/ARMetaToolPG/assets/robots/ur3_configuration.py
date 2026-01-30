@@ -38,3 +38,37 @@ UR3_CFG = ArticulationCfg(
         ),
     },
 )
+
+UR3_CFG_NP = ArticulationCfg(
+    spawn=sim_utils.UsdFileCfg(
+        usd_path=f"{ARMT_ASSETS_DATA_DIR}/ur3e/ur3e_gripper_sin_pinza.usd",
+        rigid_props=sim_utils.RigidBodyPropertiesCfg(
+            disable_gravity=False,
+            max_depenetration_velocity=5.0,
+        ),
+        articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+            enabled_self_collisions=True,
+        )
+    ),
+    init_state=ArticulationCfg.InitialStateCfg(
+        joint_pos={
+            "shoulder_pan_joint": 1.57,
+            "shoulder_lift_joint": -1.744,
+            "elbow_joint": 1.57,
+            "wrist_1_joint": (4.71-6.283),
+            "wrist_2_joint": (4.71-6.283),
+            "wrist_3_joint": (4.36-6.283),
+        },
+        pos = [0.0, 0.0, 0.0],
+        rot = [0.7071068, 0.0, 0.0, -0.7071068]
+    ),
+    actuators={
+        "arm": ImplicitActuatorCfg(
+            joint_names_expr=[".*"],
+            velocity_limit=100.0,
+            effort_limit=87.0,
+            stiffness=800.0,
+            damping=40.0,
+        ),
+    },
+)

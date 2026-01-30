@@ -111,7 +111,7 @@ ROBOHABILIS_CFG = ArticulationCfg(
         "left_gripper": ImplicitActuatorCfg(
             joint_names_expr=["l_.*_finger_joint"],
             velocity_limit=200.0,
-            effort_limit=0.2,
+            effort_limit=5,
             stiffness=2e3,
             damping=1e2,
         ),
