@@ -20,11 +20,11 @@ class UR3eReachPolicy(PolicyController):
         name: str = "robohabilis",
         position: Optional[np.ndarray] = None,
         orientation: Optional[np.ndarray] = None,
-        target: np.array = [0.0, 0.30, 0.20, 1, 0, 0, 0]
     ) -> None:
         
-        policy_path = ARMT_ASSETS_DIR + "/policys/policy_reach/"
-        usd_path = ARMT_ASSETS_DATA_DIR + "/ur3e/ur3e_gripper.usd"
+        policy_path = ARMT_ASSETS_DIR + "/policys/policy_reach_3/"
+        usd_path = ARMT_ASSETS_DATA_DIR + "/ur3e/ur3e_gripper_sin_pinza.usd"
+        print(policy_path)
         stage_utils.add_reference_to_stage(usd_path, prim_path)
         super().__init__(name, prim_path, root_path, usd_path, position, orientation)
 
@@ -33,8 +33,8 @@ class UR3eReachPolicy(PolicyController):
             policy_path + "env.yaml",
         )
 
-        
-
+        self.default_pos_r = np.array([1.57, -1.744, 1.57, -1.573, -1.573, -1.923])
+        self.target = np.array([-0.05, 0.25, 0.30, 0, -0.974, -0.224, 0])
         self._action_scale = 0.5
         self._previous_action = np.zeros(6)
         self._policy_counter = 0
@@ -44,10 +44,10 @@ class UR3eReachPolicy(PolicyController):
     def _compute_observation(self):
 
         obs = np.zeros(25)
-
-        obs[:6] = self.robot.get_joint_positions() - self.default_pos
-
-        obs[6:12] = self.robot.get_joint_velocities() - self.default_vel
+        pos = self.robot.get_joint_positions()
+        obs[:6] = pos[:6] - self.default_pos_r
+        vel = self.robot.get_joint_velocities()
+        obs[6:12] = vel[:6] - self.default_vel[:6]
 
         obs[12:19] = self.target
 
@@ -61,11 +61,7 @@ class UR3eReachPolicy(PolicyController):
             obs = self._compute_observation()
             self.action = self._compute_action(obs)
             self._previous_action = self.action.copy()
-
-        # articulation space
-        # copy last item for two fingers in order to increase action size from 8 to 9
-        # finger positions are absolute positions, not relative to the default position
-        self.action = self.action*self._action_scale + self.default_pos
+        self.action = self.action*self._action_scale + self.default_pos_r
         action = ArticulationAction(joint_positions=(self.action))
         self.robot.apply_action(action)
 

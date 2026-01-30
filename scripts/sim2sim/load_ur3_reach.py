@@ -77,7 +77,11 @@ class UR3eReachTask(object):
         self.world.scene.add(table)
 
         self.ur3e = UR3eReachPolicy(
-            prim_path="/World/robohabilis", name="robohabilis", position=np.array([[0, 0, 0]]), table=table
+            prim_path="/World/robohabilis", 
+            name="robohabilis", 
+            position=np.array([10, 0, 0]), 
+            orientation=np.array([0.7071, 0, 0, -0.7071]), 
+            table=table
         )
         print("Escena creada.\n")
 
@@ -104,12 +108,13 @@ class UR3eReachTask(object):
         # Ahora inicializar el robot
         self.ur3e.initialize()
         self.ur3e.post_reset()
-        self.ur3e.robot.set_joint_positions(self.ur3e.default_pos)
+        self.ur3e.robot.set_joint_positions(self.ur3e.default_pos_r)
+        print(self.ur3e.robot.get_joint_positions())
 
         await self.world.play_async()
 
     def on_physics_step(self, step_size) -> None:
-        self.robohabilis.forward(step_size)
-
+        #self.ur3e.forward(step_size)
+        pass
 
 asyncio.ensure_future(load_robohabilis())
